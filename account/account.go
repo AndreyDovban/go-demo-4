@@ -11,20 +11,16 @@ import (
 )
 
 type account struct {
-	login    string
-	password string
-	url      string
-}
-
-type accountWhithTime struct {
-	createAt time.Time
-	updateAt time.Time
-	account
+	Login    string
+	Password string
+	Url      string
+	CreateAt time.Time
+	UpdateAt time.Time
 }
 
 func (acc *account) OutputPassword() {
-	color.Cyan(acc.login)
-	fmt.Println(acc.login, acc.password, acc.url)
+	color.Cyan(acc.Login)
+	fmt.Println(acc.Login, acc.Password, acc.Url)
 }
 
 func (acc *account) generatePassword(n int) {
@@ -33,10 +29,10 @@ func (acc *account) generatePassword(n int) {
 	for i := 0; i < n; i++ {
 		res[i] = arr[rand.IntN(len(arr))]
 	}
-	acc.password = string(res)
+	acc.Password = string(res)
 }
 
-func NewAccount(login, password, urlString string) (*accountWhithTime, error) {
+func NewAccount(login, password, urlString string) (*account, error) {
 	if login == "" {
 		return nil, errors.New("LOGIN_EMPTY_STING")
 	}
@@ -46,12 +42,12 @@ func NewAccount(login, password, urlString string) (*accountWhithTime, error) {
 		return nil, errors.New("INVALID_URL")
 	}
 
-	newAcc := &accountWhithTime{
-		createAt: time.Now(), updateAt: time.Now(), account: account{login: login, password: password, url: urlString},
+	newAcc := &account{
+		CreateAt: time.Now(), UpdateAt: time.Now(), Login: login, Password: password, Url: urlString,
 	}
 
 	if password == "" {
-		newAcc.account.generatePassword(10)
+		newAcc.generatePassword(10)
 	}
 
 	return newAcc, nil

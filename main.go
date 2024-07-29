@@ -1,30 +1,31 @@
 package main
 
 import (
-	"demo/password/account"
+	// "demo/password/account"
 	"demo/password/files"
-	"fmt"
+	// "fmt"
 )
 
 func main() {
 	files.WriteFile("DATA", "file.txt")
-	login := promptData("Введите логин: ")
-	password := promptData("Введите пароль: ")
-	url := promptData("Введите URL: ")
+	files.ReadFile("file.txt")
+	// login := promptData("Введите логин: ")
+	// password := promptData("Введите пароль: ")
+	// url := promptData("Введите URL: ")
 
-	myAccount, err := account.NewAccount(login, password, url)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// myAccount, err := account.NewAccount(login, password, url)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	myAccount.OutputPassword()
+	// myAccount.OutputPassword()
 
 }
 
-func promptData(prompt string) string {
-	fmt.Print(prompt)
-	var res string
-	fmt.Scanln(&res)
-	return res
-}
+// func promptData(prompt string) string {
+// 	fmt.Print(prompt)
+// 	var res string
+// 	fmt.Scanln(&res)
+// 	return res
+// }

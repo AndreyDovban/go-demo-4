@@ -6,7 +6,12 @@ import (
 )
 
 func ReadFile(url string) {
-	fmt.Println(url)
+	data, err := os.ReadFile("file.txt")
+	if err != nil {
+		fmt.Println("err")
+		return
+	}
+	fmt.Println(data)
 
 }
 
@@ -15,12 +20,11 @@ func WriteFile(content, name string) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	defer file.Close()
 	_, err = file.WriteString(content)
 	if err != nil {
-		file.Close()
 		fmt.Println(err)
 		return
 	}
 	fmt.Println("Запись успешна")
-	file.Close()
 }
