@@ -2,7 +2,6 @@ package account
 
 import (
 	"errors"
-	"fmt"
 	"math/rand/v2"
 	"net/url"
 	"time"
@@ -10,20 +9,19 @@ import (
 	"github.com/fatih/color"
 )
 
-type account struct {
-	Login    string
-	Password string
-	Url      string
-	CreateAt time.Time
-	UpdateAt time.Time
+type Account struct {
+	Login    string    `json:"login"`
+	Password string    `json:"password"`
+	Url      string    `json:"url"`
+	CreateAt time.Time `json:"createAt"`
+	UpdateAt time.Time `json:"updateAt"`
 }
 
-func (acc *account) OutputPassword() {
+func (acc *Account) OutputPassword() {
 	color.Cyan(acc.Login)
-	fmt.Println(acc.Login, acc.Password, acc.Url)
 }
 
-func (acc *account) generatePassword(n int) {
+func (acc *Account) generatePassword(n int) {
 	arr := []rune("asdfghjklpiuyrewqzxcvbnm")
 	res := make([]rune, n)
 	for i := 0; i < n; i++ {
@@ -32,7 +30,7 @@ func (acc *account) generatePassword(n int) {
 	acc.Password = string(res)
 }
 
-func NewAccount(login, password, urlString string) (*account, error) {
+func NewAccount(login, password, urlString string) (*Account, error) {
 	if login == "" {
 		return nil, errors.New("LOGIN_EMPTY_STING")
 	}
@@ -42,7 +40,7 @@ func NewAccount(login, password, urlString string) (*account, error) {
 		return nil, errors.New("INVALID_URL")
 	}
 
-	newAcc := &account{
+	newAcc := &Account{
 		CreateAt: time.Now(), UpdateAt: time.Now(), Login: login, Password: password, Url: urlString,
 	}
 
