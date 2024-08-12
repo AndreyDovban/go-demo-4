@@ -26,7 +26,7 @@ loop:
 		case 1:
 			createAccount()
 		case 2:
-			searchAccount()
+			findAccount()
 		case 3:
 			deleteAccount()
 		default:
@@ -54,8 +54,10 @@ func createAccount() {
 
 }
 
-func searchAccount() {
-	fmt.Println("Search")
+func findAccount() {
+	url := promtData("Введите url для поиска: ")
+
+	fmt.Println(url)
 }
 
 func deleteAccount() {
