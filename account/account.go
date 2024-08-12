@@ -17,7 +17,7 @@ type Account struct {
 	UpdateAt time.Time `json:"updateAt"`
 }
 
-func (acc *Account) OutputPassword() {
+func (acc *Account) Output() {
 	fmt.Println(*acc)
 }
 

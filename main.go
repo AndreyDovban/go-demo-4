@@ -6,10 +6,11 @@ import (
 )
 
 func main() {
-	getMenu()
+	vault := account.NewVault()
+	getMenu(vault)
 }
 
-func getMenu() {
+func getMenu(vault *account.Vault) {
 	var variant int
 
 loop:
@@ -24,9 +25,9 @@ loop:
 
 		switch variant {
 		case 1:
-			createAccount()
+			createAccount(vault)
 		case 2:
-			findAccount()
+			findAccount(vault)
 		case 3:
 			deleteAccount()
 		default:
@@ -38,7 +39,7 @@ loop:
 
 }
 
-func createAccount() {
+func createAccount(vault *account.Vault) {
 	login := promtData("Введите логин: ")
 	password := promtData("Введите пароль: ")
 	url := promtData("Введите URL: ")
@@ -49,15 +50,21 @@ func createAccount() {
 		return
 	}
 
-	vault := account.NewVault()
 	vault.AddAccount(*myAcc)
 
 }
 
-func findAccount() {
+func findAccount(vault *account.Vault) {
 	url := promtData("Введите url для поиска: ")
+	accounts := vault.FindAccountByUrl(url)
+	if len(accounts) == 0 {
+		fmt.Println("Не найдено аккаунта с таким URL")
+		return
+	}
 
-	fmt.Println(url)
+	for _, acc := range accounts {
+		acc.Output()
+	}
 }
 
 func deleteAccount() {
