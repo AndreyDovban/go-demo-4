@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"net/url"
+	"reflect"
+	"time"
 )
 
 type Account struct {
-	Login    string
-	Password string
-	Url      string
+	Login    string    `json:"login"`
+	Password string    `json:"password"`
+	Url      string    `json:"url"`
+	CreateAt time.Time `json:"createAt"`
+	UpdateAt time.Time `json:"updateAt"`
 }
 
 func (acc *Account) OutputPassword() {
@@ -42,7 +46,13 @@ func NewAccount(login, password, urlString string) (*Account, error) {
 		Login:    login,
 		Password: password,
 		Url:      urlString,
+		CreateAt: time.Now(),
+		UpdateAt: time.Now(),
 	}
+
+	field, _ := reflect.TypeOf(acc).Elem().FieldByName("Login")
+	fmt.Println("!!! ", string(field.Tag))
+
 	if password == "" {
 		acc.GeneratePassword(12)
 	}

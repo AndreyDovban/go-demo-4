@@ -2,17 +2,46 @@ package main
 
 import (
 	"demo/password/account"
-	"demo/password/files"
 	"fmt"
 )
 
 func main() {
+	getMenu()
+}
+
+func getMenu() {
+	var variant int
+
+loop:
+	for {
+		fmt.Println("___ Менеджер паролей ___")
+		fmt.Println("1. Создать аккаунт")
+		fmt.Println("2. Найти аккаунт")
+		fmt.Println("3. Удалить аккаунт")
+		fmt.Println("4. Выход")
+
+		fmt.Scanln(&variant)
+
+		switch variant {
+		case 1:
+			createAccount()
+		case 2:
+			searchAccount()
+		case 3:
+			deleteAccount()
+		default:
+			fmt.Println("Exit")
+			break loop
+
+		}
+	}
+
+}
+
+func createAccount() {
 	login := promtData("Введите логин: ")
 	password := promtData("Введите пароль: ")
 	url := promtData("Введите URL: ")
-
-	files.WriteFile("Hello golang", "./data.txt")
-	files.ReadFile()
 
 	myAcc, err := account.NewAccount(login, password, url)
 	if err != nil {
@@ -20,8 +49,17 @@ func main() {
 		return
 	}
 
-	myAcc.OutputPassword()
+	vault := account.NewVault()
+	vault.AddAccount(*myAcc)
 
+}
+
+func searchAccount() {
+	fmt.Println("Search")
+}
+
+func deleteAccount() {
+	fmt.Println("Delete")
 }
 
 func promtData(prompt string) string {
