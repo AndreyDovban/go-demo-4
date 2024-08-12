@@ -29,7 +29,7 @@ loop:
 		case 2:
 			findAccount(vault)
 		case 3:
-			deleteAccount()
+			deleteAccount(vault)
 		default:
 			fmt.Println("Exit")
 			break loop
@@ -67,8 +67,15 @@ func findAccount(vault *account.Vault) {
 	}
 }
 
-func deleteAccount() {
-	fmt.Println("Delete")
+func deleteAccount(vault *account.Vault) {
+	url := promtData("Введите url для  удаления: ")
+	isDelete := vault.DeleteAccountByUrl(url)
+	if isDelete {
+		fmt.Println("Удалено")
+	} else {
+		fmt.Println("Ненайдено")
+	}
+
 }
 
 func promtData(prompt string) string {

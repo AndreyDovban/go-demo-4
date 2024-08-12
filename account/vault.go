@@ -38,12 +38,8 @@ func NewVault() *Vault {
 
 func (vault *Vault) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
-	vault.UpdateAt = time.Now()
-	data, err := vault.ToBytes()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	files.WriteFile(data, "data.json")
+	vault.save()
+
 }
 
 func (vault *Vault) FindAccountByUrl(url string) []Account {
@@ -58,6 +54,24 @@ func (vault *Vault) FindAccountByUrl(url string) []Account {
 	return accounts
 }
 
+func (vault *Vault) DeleteAccountByUrl(url string) bool {
+	var accounts []Account
+	isDelete := false
+	for _, account := range vault.Accounts {
+		isMatched := strings.Contains(account.Url, url)
+		if !isMatched {
+			accounts = append(accounts, account)
+			continue
+		}
+		isDelete = true
+	}
+
+	vault.Accounts = accounts
+	vault.save()
+
+	return isDelete
+}
+
 func (vault *Vault) ToBytes() ([]byte, error) {
 	file, err := json.Marshal(vault)
 	if err != nil {
@@ -66,4 +80,13 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 	}
 
 	return file, nil
+}
+
+func (vault *Vault) save() {
+	vault.UpdateAt = time.Now()
+	data, err := vault.ToBytes()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	files.WriteFile(data, "data.json")
 }
