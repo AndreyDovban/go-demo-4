@@ -1,12 +1,17 @@
 package account
 
 import (
-	"demo/password/files"
+	"demo/password/output"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 )
+
+type Db interface {
+	Read() ([]byte, error)
+	Write([]byte)
+}
 
 type Vault struct {
 	Accounts []Account `json:"accounts"`
@@ -15,10 +20,10 @@ type Vault struct {
 
 type VaultWithDb struct {
 	Vault
-	db files.JsonDb
+	db Db
 }
 
-func NewVault(db *files.JsonDb) *VaultWithDb {
+func NewVault(db Db) *VaultWithDb {
 	data, err := db.Read()
 	if err != nil {
 		return &VaultWithDb{
@@ -26,7 +31,7 @@ func NewVault(db *files.JsonDb) *VaultWithDb {
 				Accounts: []Account{},
 				UpdateAt: time.Now(),
 			},
-			db: *db,
+			db: db,
 		}
 	}
 
@@ -40,13 +45,13 @@ func NewVault(db *files.JsonDb) *VaultWithDb {
 				Accounts: []Account{},
 				UpdateAt: time.Now(),
 			},
-			db: *db,
+			db: db,
 		}
 	}
 
 	return &VaultWithDb{
 		Vault: vault,
-		db:    *db,
+		db:    db,
 	}
 }
 
@@ -89,7 +94,7 @@ func (vault *VaultWithDb) DeleteAccountByUrl(url string) bool {
 func (vault *Vault) ToBytes() ([]byte, error) {
 	file, err := json.Marshal(vault)
 	if err != nil {
-		fmt.Println(err.Error())
+		output.PrintError(err.Error())
 		return nil, err
 	}
 
@@ -100,7 +105,7 @@ func (vault *VaultWithDb) save() {
 	vault.UpdateAt = time.Now()
 	data, err := vault.Vault.ToBytes()
 	if err != nil {
-		fmt.Println(err.Error())
+		output.PrintError(err.Error())
 	}
 
 	vault.db.Write(data)

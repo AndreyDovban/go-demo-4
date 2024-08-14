@@ -3,6 +3,7 @@ package main
 import (
 	"demo/password/account"
 	"demo/password/files"
+	"demo/password/output"
 	"fmt"
 )
 
@@ -47,7 +48,7 @@ func createAccount(vault *account.VaultWithDb) {
 
 	myAcc, err := account.NewAccount(login, password, url)
 	if err != nil {
-		fmt.Println(err.Error())
+		output.PrintError(err.Error())
 		return
 	}
 
@@ -74,7 +75,7 @@ func deleteAccount(vault *account.VaultWithDb) {
 	if isDelete {
 		fmt.Println("Удалено")
 	} else {
-		fmt.Println("Ненайдено")
+		output.PrintError("Ненайдено")
 	}
 
 }
