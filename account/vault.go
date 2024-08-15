@@ -94,7 +94,7 @@ func (vault *VaultWithDb) DeleteAccountByUrl(url string) bool {
 func (vault *Vault) ToBytes() ([]byte, error) {
 	file, err := json.Marshal(vault)
 	if err != nil {
-		output.PrintError(err.Error())
+		output.Error(err.Error())
 		return nil, err
 	}
 
@@ -105,7 +105,7 @@ func (vault *VaultWithDb) save() {
 	vault.UpdateAt = time.Now()
 	data, err := vault.Vault.ToBytes()
 	if err != nil {
-		output.PrintError(err.Error())
+		output.Error(err.Error())
 	}
 
 	vault.db.Write(data)

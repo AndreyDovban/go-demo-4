@@ -27,12 +27,12 @@ func (db *JsonDb) Read() ([]byte, error) {
 func (db *JsonDb) Write(content []byte) {
 	file, err := os.Create(db.filename)
 	if err != nil {
-		output.PrintError(err.Error())
+		output.Error(err.Error())
 		defer file.Close()
 	}
 	_, err = file.Write(content)
 	if err != nil {
-		output.PrintError(err.Error())
+		output.Error(err.Error())
 		return
 	}
 	fmt.Println("Запись успешна")

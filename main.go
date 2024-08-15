@@ -7,48 +7,41 @@ import (
 	"fmt"
 )
 
+var menu = map[string]func(*account.VaultWithDb){
+	"1": createAccount,
+	"2": findAccount,
+	"3": deleteAccount,
+}
+
 func main() {
 	vault := account.NewVault(files.NewJsonDb("data.json"))
 	getMenu(vault)
 }
 
 func getMenu(vault *account.VaultWithDb) {
-	var variant int
+	var variant string
 
 loop:
 	for {
-		fmt.Println("___ Менеджер паролей ___")
-		fmt.Println("1. Создать аккаунт")
-		fmt.Println("2. Найти аккаунт")
-		fmt.Println("3. Удалить аккаунт")
-		fmt.Println("4. Выход")
+		variant = promtData([]string{"___ Менеджер паролей ___", "1. Создать аккаунт", "2. Найти аккаунт", "3. Удалить аккаунт", "4. Выход", "Выберите вариант"})
 
-		fmt.Scanln(&variant)
-
-		switch variant {
-		case 1:
-			createAccount(vault)
-		case 2:
-			findAccount(vault)
-		case 3:
-			deleteAccount(vault)
-		default:
+		menuFunc := menu[variant]
+		if menuFunc == nil {
 			fmt.Println("Exit")
 			break loop
-
 		}
+		menuFunc(vault)
 	}
-
 }
 
 func createAccount(vault *account.VaultWithDb) {
-	login := promtData("Введите логин: ")
-	password := promtData("Введите пароль: ")
-	url := promtData("Введите URL: ")
+	login := promtData([]string{"Введите логин: "})
+	password := promtData([]string{"Введите пароль: "})
+	url := promtData([]string{"Введите URL: "})
 
 	myAcc, err := account.NewAccount(login, password, url)
 	if err != nil {
-		output.PrintError(err.Error())
+		output.Error(err.Error())
 		return
 	}
 
@@ -57,7 +50,7 @@ func createAccount(vault *account.VaultWithDb) {
 }
 
 func findAccount(vault *account.VaultWithDb) {
-	url := promtData("Введите url для поиска: ")
+	url := promtData([]string{"Введите url для поиска: "})
 	accounts := vault.FindAccountByUrl(url)
 	if len(accounts) == 0 {
 		fmt.Println("Не найдено аккаунта с таким URL")
@@ -70,19 +63,27 @@ func findAccount(vault *account.VaultWithDb) {
 }
 
 func deleteAccount(vault *account.VaultWithDb) {
-	url := promtData("Введите url для  удаления: ")
+	url := promtData([]string{"Введите url для  удаления: "})
 	isDelete := vault.DeleteAccountByUrl(url)
 	if isDelete {
 		fmt.Println("Удалено")
 	} else {
-		output.PrintError("Ненайдено")
+		output.Error("Ненайдено")
 	}
 
 }
 
-func promtData(prompt string) string {
-	fmt.Print(prompt)
+func promtData[T any](prompt []T) string {
+	for i, val := range prompt {
+		if i == len(prompt)-1 {
+			fmt.Print(val, " : ")
+			break
+		}
+		fmt.Println(val)
+
+	}
 	var res string
 	fmt.Scanln(&res)
 	return res
+
 }

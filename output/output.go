@@ -2,7 +2,7 @@ package output
 
 import "github.com/fatih/color"
 
-func PrintError(value any) {
+func Error(value any) {
 	switch t := value.(type) {
 	case string:
 		color.Red(t)
