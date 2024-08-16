@@ -38,6 +38,8 @@ func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
 		}
 	}
 
+	data = enc.Decrypt(data)
+
 	var vault Vault
 
 	err = json.Unmarshal(data, &vault)
@@ -109,9 +111,10 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 func (vault *VaultWithDb) save() {
 	vault.UpdateAt = time.Now()
 	data, err := vault.Vault.ToBytes()
+	encData := vault.enc.Encrypt(data)
 	if err != nil {
 		output.Error(err.Error())
 	}
 
-	vault.db.Write(data)
+	vault.db.Write(encData)
 }

@@ -23,7 +23,7 @@ func main() {
 	if err != nil {
 		output.Error("Не удалось найти env файл")
 	}
-	vault := account.NewVault(files.NewJsonDb("data.json"), *encrypter.NewEncrypter())
+	vault := account.NewVault(files.NewJsonDb("data.vault"), *encrypter.NewEncrypter())
 	getMenu(vault)
 }
 
@@ -32,7 +32,14 @@ func getMenu(vault *account.VaultWithDb) {
 
 loop:
 	for {
-		variant = promtData([]string{"___ Менеджер паролей ___", "1. Создать аккаунт", "2. Найти аккаунт по Url", "3. Найти аккаунт по логину", "4. Удалить аккаунт", "5. Выход", "Выберите вариант"})
+		variant = promtData([]string{
+			"___ Менеджер паролей ___",
+			"1. Создать аккаунт",
+			"2. Найти аккаунт по Url",
+			"3. Найти аккаунт по логину",
+			"4. Удалить аккаунт",
+			"5. Выход", "Выберите вариант",
+		})
 
 		menuFunc := menu[variant]
 		if menuFunc == nil {
