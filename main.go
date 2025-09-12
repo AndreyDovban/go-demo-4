@@ -1,15 +1,68 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
+	"net/url"
 	"strings"
+	"time"
 )
 
 type Account struct {
 	Login    string
 	Password string
 	Url      string
+}
+
+type AccountWithTimeStamp struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Account
+}
+
+func newAccountWithTimeStamp(login, password, urlString string) (*AccountWithTimeStamp, error) {
+	if login == "" {
+		return nil, errors.New("НЕ ПЕРЕДАН ЛОГИН")
+	}
+
+	_, err := url.ParseRequestURI(urlString)
+	if err != nil {
+		return nil, err
+	}
+
+	newAcc := &AccountWithTimeStamp{
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Url:       urlString,
+		Password:  password,
+		Login:     login,
+	}
+	if password == "" {
+		newAcc.generatePassword(10)
+	}
+	return newAcc, nil
+}
+
+func newAccount(login, password, urlString string) (*Account, error) {
+	if login == "" {
+		return nil, errors.New("НЕ ПЕРЕДАН ЛОГИН")
+	}
+
+	_, err := url.ParseRequestURI(urlString)
+	if err != nil {
+		return nil, err
+	}
+
+	newAcc := &Account{
+		Url:      urlString,
+		Password: password,
+		Login:    login,
+	}
+	if password == "" {
+		newAcc.generatePassword(10)
+	}
+	return newAcc, nil
 }
 
 func (acc *Account) output() {
@@ -32,26 +85,22 @@ func (acc *Account) generatePassword(n int) {
 }
 
 func main() {
-	var data Account
-	var data2 Account
+	login := promtData("Введите логин: ")
+	password := promtData("Введите пароль: ")
+	url := promtData("Введите адрес: ")
+	var account, err = newAccount(login, password, url)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
-	promtData(&data)
-	// promtData(&data2)
-
-	data.output()
-	data2.output()
+	account.output()
 
 }
 
-func promtData(acc *Account) {
-
-	fmt.Println("----------------------")
-	fmt.Println("Введите логин")
-	fmt.Scan(&acc.Login)
-	fmt.Println("Генерация пароля")
-	acc.generatePassword(10)
-	fmt.Println("Введите адрес")
-	fmt.Scan(&acc.Url)
-	fmt.Println("----------------------")
-
+func promtData(text string) string {
+	var res string
+	fmt.Println(text)
+	fmt.Scanln(&res)
+	return res
 }
