@@ -1,7 +1,6 @@
 package account
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -62,12 +61,4 @@ func (acc *Account) generatePassword(n int) {
 	}
 	acc.Password = strings.Join(pass, "")
 
-}
-
-func (acc *Account) ToBytes() ([]byte, error) {
-	bytes, err := json.MarshalIndent(acc, "", "    ")
-	if err != nil {
-		return nil, err
-	}
-	return bytes, nil
 }

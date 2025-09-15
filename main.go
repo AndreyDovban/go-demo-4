@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	for {
 		if !getMenu() {
 			break
@@ -54,16 +53,18 @@ func createAccount() {
 		return
 	}
 
-	bytes, err := myAccount.ToBytes()
+	vault := account.NewVoult()
+	vault.AddAccount(*myAccount)
+
+	bytes, err := vault.ToBytes()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	files.WriteFile("./accounts.json", bytes)
+	files.WriteFile("./vault.json", bytes)
 
 	myAccount.Output()
-
 }
 
 func getAccount() {
