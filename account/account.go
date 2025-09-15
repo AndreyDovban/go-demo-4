@@ -1,6 +1,7 @@
 package account
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -9,44 +10,17 @@ import (
 	"time"
 )
 
-type Account struct {
-	Login    string
-	Password string
-	Url      string
-}
+type Accounts []Account
 
-type AccountWithTimeStamp struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Account
+type Account struct {
+	CreatedAt time.Time `json:"create_at"`
+	UpdatedAt time.Time `json:"update_at"`
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	Url       string    `json:"url"`
 }
 
 var runes = []rune("qwertyuiopasdfghjklzxcvbnm123456789ASDFGHJKLZXCVBNMQWERTYUIOP")
-
-func NewAccountWithTimeStamp(login, password, urlString string) (*AccountWithTimeStamp, error) {
-	if login == "" {
-		return nil, errors.New("НЕ ПЕРЕДАН ЛОГИН")
-	}
-
-	_, err := url.ParseRequestURI(urlString)
-	if err != nil {
-		return nil, err
-	}
-
-	newAcc := &AccountWithTimeStamp{
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Account: Account{
-			Url:      urlString,
-			Password: password,
-			Login:    login,
-		},
-	}
-	if password == "" {
-		newAcc.generatePassword(10)
-	}
-	return newAcc, nil
-}
 
 func NewAccount(login, password, urlString string) (*Account, error) {
 	if login == "" {
@@ -59,9 +33,11 @@ func NewAccount(login, password, urlString string) (*Account, error) {
 	}
 
 	newAcc := &Account{
-		Url:      urlString,
-		Password: password,
-		Login:    login,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Url:       urlString,
+		Password:  password,
+		Login:     login,
 	}
 	if password == "" {
 		newAcc.generatePassword(10)
@@ -86,4 +62,12 @@ func (acc *Account) generatePassword(n int) {
 	}
 	acc.Password = strings.Join(pass, "")
 
+}
+
+func (acc *Account) ToBytes() ([]byte, error) {
+	bytes, err := json.MarshalIndent(acc, "", "    ")
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
 }

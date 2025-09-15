@@ -5,12 +5,18 @@ import (
 	"os"
 )
 
-func ReadFile() {
-	fmt.Println("read file")
+func ReadFile(name string) {
+
+	data, err := os.ReadFile(name)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	} else {
+		fmt.Println(string(data))
+	}
 }
 
-func WriteFile(name string, content string) {
-	fmt.Println("write file")
+func WriteFile(name string, content []byte) {
 
 	file, err := os.Create(name)
 	if err != nil {
@@ -18,7 +24,7 @@ func WriteFile(name string, content string) {
 	}
 	defer file.Close()
 
-	_, err = file.Write([]byte(content))
+	_, err = file.Write(content)
 	if err != nil {
 		file.Close()
 		fmt.Println(err.Error())
