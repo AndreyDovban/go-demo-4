@@ -34,11 +34,9 @@ func NewVoult() *Vault {
 func (vault *Vault) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
 	vault.UpdatedAt = time.Now()
-	bytes, err := vault.ToBytes()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	files.WriteFile("vault.json", bytes)
+
+	vault.Save()
+
 	fmt.Println("Аккаунт успешно добавлен")
 	acc.Output()
 }
@@ -86,11 +84,7 @@ func (vault *Vault) DeleteAccountsByUrl(url string) {
 		}
 	}
 
-	bytes, err := vault.ToBytes()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	files.WriteFile("vault.json", bytes)
+	vault.Save()
 
 }
 
@@ -100,4 +94,12 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 		return nil, err
 	}
 	return bytes, nil
+}
+
+func (vault *Vault) Save() {
+	bytes, err := vault.ToBytes()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	files.WriteFile("vault.json", bytes)
 }
