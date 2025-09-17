@@ -2,7 +2,6 @@ package main
 
 import (
 	"app-demo-4/account"
-	"app-demo-4/files"
 	"fmt"
 	"strings"
 )
@@ -19,6 +18,8 @@ func main() {
 }
 
 func getMenu() bool {
+	vault := account.NewVoult()
+
 	fmt.Println("---------------------")
 	fmt.Println("1. Создать аккаунт")
 	fmt.Println("2. Получить аккаунт")
@@ -28,13 +29,13 @@ func getMenu() bool {
 	fmt.Println("---------------------")
 	switch {
 	case item == "1":
-		createAccount()
+		createAccount(vault)
 		return true
 	case item == "2":
-		getAccount()
+		getAccount(vault)
 		return true
 	case item == "3":
-		deleteAccount()
+		deleteAccount(vault)
 		return true
 	case item == "4":
 		return false
@@ -43,7 +44,7 @@ func getMenu() bool {
 	}
 }
 
-func createAccount() {
+func createAccount(vault *account.Vault) {
 	login := promtData("Введите логин: ")
 	password := promtData("Введите пароль: ")
 	url := promtData("Введите адрес: ")
@@ -53,26 +54,18 @@ func createAccount() {
 		return
 	}
 
-	vault := account.NewVoult()
 	vault.AddAccount(*myAccount)
 
-	bytes, err := vault.ToBytes()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	files.WriteFile("./vault.json", bytes)
-
-	myAccount.Output()
 }
 
-func getAccount() {
-	fmt.Println("get account")
+func getAccount(vault *account.Vault) {
+	url := promtData("Введите url для поиска")
+	vault.GetAccountsByUrl(url)
 }
 
-func deleteAccount() {
-	fmt.Println("delete account")
+func deleteAccount(vault *account.Vault) {
+	url := promtData("Введите url для удаления")
+	vault.DeleteAccountsByUrl(url)
 }
 
 func promtData(text string) string {
@@ -84,7 +77,7 @@ func promtData(text string) string {
 
 func requestToContinue() bool {
 	var res string
-	fmt.Println("Продолжить?")
+	fmt.Println("Хотите продолжить Y/N?")
 	fmt.Scanln(&res)
 	if strings.ToLower(res) == "y" || strings.ToLower(res) == "yes" {
 		return true

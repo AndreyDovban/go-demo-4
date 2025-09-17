@@ -45,10 +45,9 @@ func NewAccount(login, password, urlString string) (*Account, error) {
 }
 
 func (acc *Account) Output() {
-	fmt.Println("Login: ", acc.Login)
-	fmt.Println("Password: ", acc.Password)
-	fmt.Println("Url: ", acc.Url)
-	fmt.Println()
+	fmt.Println("----------------------")
+	fmt.Println("Login:", acc.Login+";", "Password:", acc.Password+";", "Url:", acc.Url)
+	fmt.Println("----------------------")
 
 }
 

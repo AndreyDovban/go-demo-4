@@ -2,4 +2,4 @@ app-4
 data.json
 /.env*
 /*.vault
-accounts.json
+vault.json
