@@ -14,7 +14,8 @@ type Vault struct {
 }
 
 func NewVoult() *Vault {
-	bytes, err := files.ReadFile("vault.json")
+	db := files.NewJsonDb("vault.json")
+	bytes, err := db.Read()
 	if err != nil {
 		return &Vault{
 			Accounts:  []Account{},
@@ -33,7 +34,6 @@ func NewVoult() *Vault {
 
 func (vault *Vault) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
-	vault.UpdatedAt = time.Now()
 
 	vault.Save()
 
@@ -71,20 +71,17 @@ func (vault *Vault) DeleteAccountsByUrl(url string) {
 		}
 	}
 
-	vault.Accounts = result
-	vault.UpdatedAt = time.Now()
-
 	if len(daletedAcc) == 0 {
 		fmt.Println("Нет аккаунтов для удаления")
 		return
 	} else {
 		fmt.Println("Удалены следующие аккаунты")
+		vault.Accounts = result
+		vault.Save()
 		for _, acc := range daletedAcc {
 			acc.Output()
 		}
 	}
-
-	vault.Save()
 
 }
 
@@ -97,9 +94,11 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 }
 
 func (vault *Vault) Save() {
+	vault.UpdatedAt = time.Now()
 	bytes, err := vault.ToBytes()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	files.WriteFile("vault.json", bytes)
+	db := files.NewJsonDb("vault.json")
+	db.Write(bytes)
 }

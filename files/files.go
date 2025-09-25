@@ -5,9 +5,19 @@ import (
 	"os"
 )
 
-func ReadFile(name string) ([]byte, error) {
+type JsonDb struct {
+	filename string
+}
 
-	data, err := os.ReadFile(name)
+func NewJsonDb(name string) *JsonDb {
+	return &JsonDb{
+		filename: name,
+	}
+}
+
+func (db *JsonDb) Read() ([]byte, error) {
+
+	data, err := os.ReadFile(db.filename)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err
@@ -16,9 +26,9 @@ func ReadFile(name string) ([]byte, error) {
 
 }
 
-func WriteFile(name string, content []byte) {
+func (db *JsonDb) Write(content []byte) {
 
-	file, err := os.Create(name)
+	file, err := os.Create(db.filename)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
