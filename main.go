@@ -2,6 +2,7 @@ package main
 
 import (
 	"app-demo-4/account"
+	"app-demo-4/files"
 	"fmt"
 	"strings"
 )
@@ -18,15 +19,15 @@ func main() {
 }
 
 func getMenu() bool {
-	vault := account.NewVoult()
+	vault := account.NewVoult(files.NewJsonDb("vault.json"))
 
-	fmt.Println("---------------------")
-	fmt.Println("1. Создать аккаунт")
-	fmt.Println("2. Получить аккаунт")
-	fmt.Println("3. Удалить аккаунт")
-	fmt.Println("4. Выход")
-	item := promtData("Выберите пункт меню: ")
-	fmt.Println("---------------------")
+	item := promtData([]any{
+		"---------------------",
+		"1. Создать аккаунт",
+		"2. Получить аккаунт",
+		"3. Удалить аккаунт",
+		"4. Выход",
+		"Выберите пункт меню"})
 	switch {
 	case item == "1":
 		createAccount(vault)
@@ -44,10 +45,10 @@ func getMenu() bool {
 	}
 }
 
-func createAccount(vault *account.Vault) {
-	login := promtData("Введите логин: ")
-	password := promtData("Введите пароль: ")
-	url := promtData("Введите адрес: ")
+func createAccount(vault *account.VaultWithDb) {
+	login := promtData([]any{"Введите логин: "})
+	password := promtData([]any{"Введите пароль: "})
+	url := promtData([]any{"Введите адрес: "})
 	var myAccount, err = account.NewAccount(login, password, url)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -58,19 +59,27 @@ func createAccount(vault *account.Vault) {
 
 }
 
-func getAccount(vault *account.Vault) {
-	url := promtData("Введите url для поиска")
+func getAccount(vault *account.VaultWithDb) {
+	url := promtData([]any{"Введите url для поиска"})
 	vault.GetAccountsByUrl(url)
 }
 
-func deleteAccount(vault *account.Vault) {
-	url := promtData("Введите url для удаления")
+func deleteAccount(vault *account.VaultWithDb) {
+	url := promtData([]any{"Введите url для удаления"})
 	vault.DeleteAccountsByUrl(url)
 }
 
-func promtData(text string) string {
+func promtData[T []any](prompt T) string {
 	var res string
-	fmt.Println(text)
+
+	for i, line := range prompt {
+		if i == len(prompt)-1 {
+			fmt.Printf("%v: ", line)
+		} else {
+			fmt.Println(line)
+		}
+	}
+
 	fmt.Scanln(&res)
 	return res
 }

@@ -1,38 +1,69 @@
 package account
 
 import (
-	"app-demo-4/files"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 )
 
+type ByteReader interface {
+	Read() ([]byte, error)
+}
+
+type ByteWriter interface {
+	Write([]byte)
+}
+
+type Db interface {
+	ByteReader
+	ByteWriter
+}
+
 type Vault struct {
 	Accounts  []Account `json:"accounts"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func NewVoult() *Vault {
-	db := files.NewJsonDb("vault.json")
+type VaultWithDb struct {
+	Vault
+	db Db
+}
+
+func NewVoult(db Db) *VaultWithDb {
+
 	bytes, err := db.Read()
 	if err != nil {
-		return &Vault{
-			Accounts:  []Account{},
-			UpdatedAt: time.Now(),
+		return &VaultWithDb{
+			Vault: Vault{
+
+				Accounts:  []Account{},
+				UpdatedAt: time.Now(),
+			},
+			db: db,
 		}
 	}
 	var vault Vault
 
 	err = json.Unmarshal(bytes, &vault)
 	if err != nil {
-		fmt.Println(err.Error())
+		return &VaultWithDb{
+			Vault: Vault{
+
+				Accounts:  []Account{},
+				UpdatedAt: time.Now(),
+			},
+			db: db,
+		}
 	}
 
-	return &vault
+	return &VaultWithDb{
+		Vault: vault,
+		db:    db,
+	}
 }
 
-func (vault *Vault) AddAccount(acc Account) {
+func (vault *VaultWithDb) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
 
 	vault.Save()
@@ -41,7 +72,7 @@ func (vault *Vault) AddAccount(acc Account) {
 	acc.Output()
 }
 
-func (vault *Vault) GetAccountsByUrl(url string) {
+func (vault *VaultWithDb) GetAccountsByUrl(url string) {
 	result := []Account{}
 
 	for _, acc := range vault.Accounts {
@@ -59,7 +90,7 @@ func (vault *Vault) GetAccountsByUrl(url string) {
 	}
 }
 
-func (vault *Vault) DeleteAccountsByUrl(url string) {
+func (vault *VaultWithDb) DeleteAccountsByUrl(url string) {
 	result := []Account{}
 	daletedAcc := []Account{}
 
@@ -93,12 +124,11 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 	return bytes, nil
 }
 
-func (vault *Vault) Save() {
+func (vault *VaultWithDb) Save() {
 	vault.UpdatedAt = time.Now()
-	bytes, err := vault.ToBytes()
+	bytes, err := vault.Vault.ToBytes()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	db := files.NewJsonDb("vault.json")
-	db.Write(bytes)
+	vault.db.Write(bytes)
 }
