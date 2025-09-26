@@ -3,7 +3,6 @@ package account
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -72,22 +71,17 @@ func (vault *VaultWithDb) AddAccount(acc Account) {
 	acc.Output()
 }
 
-func (vault *VaultWithDb) GetAccountsByUrl(url string) {
+func (vault *VaultWithDb) GetAccounts(url string, checkUrl func(Account, string) bool) []Account {
 	result := []Account{}
 
 	for _, acc := range vault.Accounts {
-		if strings.Contains(acc.Url, url) {
+		if checkUrl(acc, url) {
 			result = append(result, acc)
 		}
 	}
 
-	if len(result) == 0 {
-		fmt.Println("Не найденно аккаутов с таким url")
-	} else {
-		for _, acc := range result {
-			acc.Output()
-		}
-	}
+	return result
+
 }
 
 func (vault *VaultWithDb) DeleteAccountsByUrl(url string) {

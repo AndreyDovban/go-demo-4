@@ -7,48 +7,40 @@ import (
 	"strings"
 )
 
+var menu = map[string]func(*account.VaultWithDb){
+	"1": createAccount,
+	"2": getAccountByUrl,
+	"3": getAccountByLogin,
+	"4": deleteAccount,
+}
+
 func main() {
+	vault := account.NewVoult(files.NewJsonDb("vault.json"))
+
 	for {
-		if !getMenu() {
+		item := promtData(
+			"---------------------",
+			"1. Создать аккаунт",
+			"2. Получить аккаунт по Url",
+			"3. Получить аккаунт по Login",
+			"3. Удалить аккаунт",
+			"5. Выход",
+			"Выберите пункт меню")
+		menuFunc := menu[item]
+		if menuFunc == nil {
 			break
 		}
+		menuFunc(vault)
 		if !requestToContinue() {
 			break
 		}
 	}
 }
 
-func getMenu() bool {
-	vault := account.NewVoult(files.NewJsonDb("vault.json"))
-
-	item := promtData([]any{
-		"---------------------",
-		"1. Создать аккаунт",
-		"2. Получить аккаунт",
-		"3. Удалить аккаунт",
-		"4. Выход",
-		"Выберите пункт меню"})
-	switch {
-	case item == "1":
-		createAccount(vault)
-		return true
-	case item == "2":
-		getAccount(vault)
-		return true
-	case item == "3":
-		deleteAccount(vault)
-		return true
-	case item == "4":
-		return false
-	default:
-		return true
-	}
-}
-
 func createAccount(vault *account.VaultWithDb) {
-	login := promtData([]any{"Введите логин: "})
-	password := promtData([]any{"Введите пароль: "})
-	url := promtData([]any{"Введите адрес: "})
+	login := promtData("Введите логин: ")
+	password := promtData("Введите пароль: ")
+	url := promtData("Введите адрес: ")
 	var myAccount, err = account.NewAccount(login, password, url)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -59,17 +51,46 @@ func createAccount(vault *account.VaultWithDb) {
 
 }
 
-func getAccount(vault *account.VaultWithDb) {
-	url := promtData([]any{"Введите url для поиска"})
-	vault.GetAccountsByUrl(url)
+func getAccountByUrl(vault *account.VaultWithDb) {
+	url := promtData("Введите url для поиска")
+	accounts := vault.GetAccounts(
+		url,
+		func(acc account.Account, str string) bool {
+			return strings.Contains(acc.Url, str)
+		},
+	)
+
+	outputResults(&accounts)
+}
+
+func getAccountByLogin(vault *account.VaultWithDb) {
+	login := promtData("Введите login для поиска")
+	accounts := vault.GetAccounts(
+		login,
+		func(acc account.Account, str string) bool {
+			return strings.Contains(acc.Login, str)
+		},
+	)
+
+	outputResults(&accounts)
+}
+
+func outputResults(accounts *[]account.Account) {
+	if len(*accounts) == 0 {
+		fmt.Println("Не найденно аккаутов")
+	} else {
+		for _, acc := range *accounts {
+			acc.Output()
+		}
+	}
 }
 
 func deleteAccount(vault *account.VaultWithDb) {
-	url := promtData([]any{"Введите url для удаления"})
+	url := promtData("Введите url для удаления")
 	vault.DeleteAccountsByUrl(url)
 }
 
-func promtData[T []any](prompt T) string {
+func promtData[T any](prompt ...T) string {
 	var res string
 
 	for i, line := range prompt {
