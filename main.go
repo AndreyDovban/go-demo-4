@@ -2,9 +2,12 @@ package main
 
 import (
 	"app-demo-4/account"
+	"app-demo-4/encrypter"
 	"app-demo-4/files"
 	"fmt"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 var menu = map[string]func(*account.VaultWithDb){
@@ -15,7 +18,15 @@ var menu = map[string]func(*account.VaultWithDb){
 }
 
 func main() {
-	vault := account.NewVoult(files.NewJsonDb("vault.json"))
+
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
+
+	vault := account.NewVoult(
+		files.NewJsonDb("vault"),
+		*encrypter.NewEncryptor())
 
 	for {
 		item := promtData(

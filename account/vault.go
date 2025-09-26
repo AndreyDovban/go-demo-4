@@ -1,6 +1,8 @@
 package account
 
 import (
+	"app-demo-4/encrypter"
+
 	"encoding/json"
 	"fmt"
 	"time"
@@ -26,10 +28,11 @@ type Vault struct {
 
 type VaultWithDb struct {
 	Vault
-	db Db
+	db  Db
+	enc encrypter.Encrypter
 }
 
-func NewVoult(db Db) *VaultWithDb {
+func NewVoult(db Db, enc encrypter.Encrypter) *VaultWithDb {
 
 	bytes, err := db.Read()
 	if err != nil {
@@ -39,10 +42,13 @@ func NewVoult(db Db) *VaultWithDb {
 				Accounts:  []Account{},
 				UpdatedAt: time.Now(),
 			},
-			db: db,
+			db:  db,
+			enc: enc,
 		}
 	}
 	var vault Vault
+
+	enc.Decrypt(bytes)
 
 	err = json.Unmarshal(bytes, &vault)
 	if err != nil {
@@ -52,13 +58,15 @@ func NewVoult(db Db) *VaultWithDb {
 				Accounts:  []Account{},
 				UpdatedAt: time.Now(),
 			},
-			db: db,
+			db:  db,
+			enc: enc,
 		}
 	}
 
 	return &VaultWithDb{
 		Vault: vault,
 		db:    db,
+		enc:   enc,
 	}
 }
 
@@ -124,5 +132,7 @@ func (vault *VaultWithDb) Save() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	vault.db.Write(bytes)
+	encrypt_bytes := vault.enc.Encrypt(bytes)
+	vault.db.Write(encrypt_bytes)
+	// vault.db.Write(bytes)
 }
